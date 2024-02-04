@@ -19,28 +19,28 @@ void Renderer::init_vbo()
     // Create VBO
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
     GLsizeiptr array_size = Computer::positions.size() * sizeof(dim::Vector4);
-
-    glBufferData(GL_ARRAY_BUFFER, 2 * array_size, NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, array_size, Computer::positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, array_size, array_size, Computer::speeds.data());
-
+    GLintptr offset = 0;
+    glBufferData(GL_ARRAY_BUFFER, 3 * array_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::positions.data()); offset += array_size;
+    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::speeds.data()); offset += array_size;
+    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::colors.data()); offset += array_size;
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Create VAO
+    offset = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
     GLint positions = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_position");
-    glVertexAttribPointer(positions, 4, GL_FLOAT, GL_FALSE, sizeof(dim::Vector4), reinterpret_cast<GLvoid*>(0));
+    glVertexAttribPointer(positions, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
     glEnableVertexAttribArray(positions);
-
     GLint speeds = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_speed");
-    glVertexAttribPointer(speeds, 4, GL_FLOAT, GL_FALSE, sizeof(dim::Vector4), reinterpret_cast<GLvoid*>(array_size));
+    glVertexAttribPointer(speeds, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(array_size));
     glEnableVertexAttribArray(speeds);
-
+    GLint colors = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_color");
+    glVertexAttribPointer(colors, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(2*array_size));
+    glEnableVertexAttribArray(colors);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -48,13 +48,11 @@ void Renderer::init_vbo()
 void Renderer::update_vbo()
 {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
     GLsizeiptr array_size = Computer::positions.size() * sizeof(dim::Vector4);
-
-    glBufferData(GL_ARRAY_BUFFER, 2 * array_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * array_size, NULL, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, array_size, Computer::positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, array_size, array_size, Computer::speeds.data());
-
+    glBufferSubData(GL_ARRAY_BUFFER, 1 * array_size, array_size, Computer::speeds.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 2 * array_size, array_size, Computer::colors.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
