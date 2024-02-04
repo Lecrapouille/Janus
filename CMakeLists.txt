@@ -89,3 +89,7 @@ else()
 	include_directories(${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::OpenGL GLEW::GLEW)
 endif()
+
+# libpthread
+find_package (Threads)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})

@@ -173,7 +173,7 @@ void Menu::display()
         SimulationType temp = simulation_type;
 
         ImGui::Text("The type of simulation");
-        ImGui::Combo("##simulation_type", reinterpret_cast<int*>(&simulation_type), "Galaxy\0Collision\0Universe");
+        ImGui::Combo("##simulation_type", reinterpret_cast<int*>(&simulation_type), "Galaxy\0Collision\0Universe\0");
 
         if (simulation_type != temp)
         {
