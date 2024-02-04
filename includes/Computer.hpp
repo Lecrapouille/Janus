@@ -10,9 +10,11 @@ class Computer
 {
 public:
 
+    static std::vector<float>               masses;                         // The mass of the stars.
     static std::vector<dim::Vector4>        positions;                      // The position of the stars.
     static std::vector<dim::Vector4>        speeds;                         // The speed of the stars.
     static std::vector<dim::Vector4>        accelerations;                  // The acceleration of the stars.
+    static cl::Buffer                       masses_buffer;                  // The OpenCL buffer of the masses.
     static cl::Buffer                       positions_buffer;               // The OpenCL buffer of the positions.
     static cl::Buffer                       speeds_buffer;                  // The OpenCL buffer of the speeds.
     static cl::Buffer                       accelerations_buffer;           // The OpenCL buffer of the accelerations.
@@ -24,9 +26,16 @@ public:
     /**
      * @brief Gives a point randomly placed in a sphere of the diameter of the galaxy.
      *
-     * @return the randomly placed point
+     * @return the randomly placed point with fixed mass of 1.
      */
-    static dim::Vector3 random_sphere();
+    static void random_sphere(dim::Vector4& position, float& mass);
+
+    /**
+     * @brief Gives a point randomly placed in a sphere of the diameter of the galaxy.
+     *
+     * @return the randomly placed point with randomize positive or negative mass.
+     */
+    static void random_sphere(const float negative_mass_proportion, dim::Vector4& position, float& mass);
 
     /**
      * @brief Add a star in the galaxy setup.

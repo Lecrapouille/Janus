@@ -191,6 +191,7 @@ void Renderer::draw()
     blur_fbo_2.get_texture().bind();
     post_vbo.bind();
 
+    dim::Shader::get("post").send_uniform("u_simulation_model", static_cast<int>(Simulator::simulation_model));
     dim::Shader::get("post").send_uniform("u_color_type", static_cast<int>(Simulator::simulation_type));
     dim::Shader::get("post").send_uniform("u_galaxy", galaxy_fbo_1.get_texture());
     dim::Shader::get("post").send_uniform("u_blur", blur_fbo_2.get_texture());

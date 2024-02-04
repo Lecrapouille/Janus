@@ -5,6 +5,8 @@ bool                    Menu::visible           = true;
 bool                    Menu::active            = false;
 bool                    Menu::pause             = false;
 SimulationType          Menu::simulation_type   = SimulationType::Galaxy;
+SimulationModel         Menu::simulation_model  = SimulationModel::AntiNewton;
+float                   Menu::negative_mass_proportion = 0.5f;
 float                   Menu::step;
 float                   Menu::smoothing_length;
 float                   Menu::interaction_rate;
@@ -59,6 +61,7 @@ void Menu::set_default_values()
     smoothing_length        = 1.f;
     galaxies_distance       = 75.f;
     black_hole_mass         = 1000.f;
+    negative_mass_proportion = 0.5f;
 
     switch (simulation_type)
     {
@@ -111,10 +114,17 @@ void Menu::galaxy()
     ImGui::Text("The initial speed of the stars");
     ImGui::SliderFloat("##stars_speed", &stars_speed, 0.f, 500.f, "%.1f");
 
-    ImGui::NewLine();
-
-    ImGui::Text("The mass of the black hole");
-    ImGui::SliderFloat("##black_hole_mass", &black_hole_mass, 100.f, 1000000.f, "%.0f", ImGuiSliderFlags_Logarithmic);
+    if (simulation_model == SimulationModel::Old)
+    {
+        ImGui::NewLine();
+        ImGui::Text("The mass of the black hole");
+        ImGui::SliderFloat("##black_hole_mass", &black_hole_mass, 0.f, 1000000.f, "%.0f", ImGuiSliderFlags_Logarithmic);
+    }
+    else
+    {
+        // Just for security, because models do not use explicitly
+        black_hole_mass = 0.0f;
+    }
 }
 
 void Menu::collision()
@@ -170,15 +180,35 @@ void Menu::display()
 
         ImGui::NewLine();
 
-        SimulationType temp = simulation_type;
-
+        SimulationType temp_type = simulation_type;
         ImGui::Text("The type of simulation");
         ImGui::Combo("##simulation_type", reinterpret_cast<int*>(&simulation_type), "Galaxy\0Collision\0Universe\0");
-
-        if (simulation_type != temp)
+        if (simulation_type != temp_type)
         {
             set_default_values();
             Simulator::reload = true;
+        }
+
+        ImGui::NewLine();
+
+        SimulationModel temp_model = simulation_model;
+        ImGui::Text("The simulation model");
+        ImGui::Combo("##simulation_model", reinterpret_cast<int*>(&simulation_model), "None\0Newton\0AntiNewton\0");
+        if (simulation_model != temp_model)
+        {
+            if (simulation_model == SimulationModel::Old)
+            {
+                black_hole_mass = 1000.0f; // Default value
+            }
+            Simulator::reload = true;
+        }
+
+        if (simulation_model != SimulationModel::Old)
+        {
+            ImGui::NewLine();
+            title("Newton or Anti-Newton model");
+            ImGui::Text("Negative mass proportion");
+            ImGui::SliderFloat("##negative_mass_proportion", &negative_mass_proportion, 0.0f, 1.0f, "%.4f");
         }
 
         ImGui::NewLine();
@@ -216,15 +246,24 @@ void Menu::display()
 
         ImGui::NewLine();
 
-        std::vector<bool> buttons = centered_buttons({ "Restart", pause_button }, 25.f, 20.f);
+        std::vector<bool> buttons = centered_buttons({ "Reset", "Restart", pause_button }, 25.f, 20.f);
 
-        if (buttons[1])
+        if (buttons[2])
+        {
             pause = !pause;
-
+        }
         pause_button = (pause ? "Play" : "Pause");
 
-        if (buttons[0])
+        if (buttons[1])
+        {
             Simulator::reload = true;
+        }
+
+        if (buttons[0])
+        {
+            set_default_values();
+            Simulator::reload = true;
+        }
 
         active = ImGui::IsWindowFocused();
 
