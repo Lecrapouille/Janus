@@ -96,8 +96,14 @@ endif
 ###################################################
 # Linkage
 #
-PKG_LIBS += sfml-graphics glm OpenCL
+PKG_LIBS += sfml-graphics glm
 LINKER_FLAGS += -ldl -lpthread
+
+ifeq ($(ARCHI),Darwin)
+PKG_LIBS += OpenCL OpenCL-CLHPP
+else
+PKG_LIBS += OpenCL
+endif
 
 ###################################################
 # Make the list of compiled files for the application

@@ -32,7 +32,7 @@ void Menu::title(const std::string& text)
 
     ImGui::NewLine();
     ImGui::SetCursorPosX((window_width - text_width) * 0.5f);
-    ImGui::Text(text.data());
+    ImGui::Text("%s", text.data());
     ImGui::Separator();
 }
 
