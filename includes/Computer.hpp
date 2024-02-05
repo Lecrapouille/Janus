@@ -10,7 +10,8 @@ class Computer
 {
 public:
 
-    static std::vector<dim::Vector4>        colors;                         // The color of the stars.
+    static size_t                           simulation_iterations;          // Count the number of iterations.
+    static float                            simulation_time;                //
     static std::vector<float>               masses;                         // The mass of the stars.
     static std::vector<dim::Vector4>        positions;                      // The position of the stars.
     static std::vector<dim::Vector4>        speeds;                         // The speed of the stars.
@@ -29,14 +30,14 @@ public:
      *
      * @return the randomly placed point with fixed mass of 1.
      */
-    static void random_sphere(dim::Vector4& position, float& mass, dim::Vector4& color);
+    static void random_sphere(dim::Vector4& position, float& mass);
 
     /**
      * @brief Gives a point randomly placed in a sphere of the diameter of the galaxy.
      *
      * @return the randomly placed point with randomize positive or negative mass.
      */
-    static void random_sphere(const float negative_mass_proportion, dim::Vector4& position, float& mass, dim::Vector4& color);
+    static void random_sphere(const float negative_mass_proportion, dim::Vector4& position, float& mass);
 
     /**
      * @brief Add a star in the galaxy setup.

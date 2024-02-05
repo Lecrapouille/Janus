@@ -12,6 +12,10 @@ dim::FrameBuffer        Renderer::blur_fbo_2;
 
 void Renderer::init_vbo()
 {
+    const GLsizeiptr positions_size = Computer::positions.size() * sizeof(dim::Vector4);
+    const GLsizeiptr speeds_size = Computer::speeds.size() * sizeof(dim::Vector4);
+    const GLsizeiptr masses_size = Computer::masses.size() * sizeof(float);
+
     // delete buffers
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
@@ -19,16 +23,13 @@ void Renderer::init_vbo()
     // Create VBO
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    GLsizeiptr array_size = Computer::positions.size() * sizeof(dim::Vector4);
-    GLintptr offset = 0;
-    glBufferData(GL_ARRAY_BUFFER, 3 * array_size, NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::positions.data()); offset += array_size;
-    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::speeds.data()); offset += array_size;
-    glBufferSubData(GL_ARRAY_BUFFER, offset, array_size, Computer::colors.data()); offset += array_size;
+    glBufferData(GL_ARRAY_BUFFER, positions_size + speeds_size + masses_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
+    glBufferSubData(GL_ARRAY_BUFFER, positions_size, positions_size + speeds_size, Computer::speeds.data());
+    glBufferSubData(GL_ARRAY_BUFFER, positions_size + speeds_size, positions_size + speeds_size + masses_size, Computer::masses.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Create VAO
-    offset = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -36,23 +37,26 @@ void Renderer::init_vbo()
     glVertexAttribPointer(positions, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
     glEnableVertexAttribArray(positions);
     GLint speeds = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_speed");
-    glVertexAttribPointer(speeds, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(array_size));
+    glVertexAttribPointer(speeds, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(positions_size));
     glEnableVertexAttribArray(speeds);
-    GLint colors = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_color");
-    glVertexAttribPointer(colors, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(2*array_size));
-    glEnableVertexAttribArray(colors);
+    GLint masses = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_mass");
+    glVertexAttribPointer(masses, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(positions_size + speeds_size));
+    glEnableVertexAttribArray(masses);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 void Renderer::update_vbo()
 {
+    const GLsizeiptr positions_size = Computer::positions.size() * sizeof(dim::Vector4);
+    const GLsizeiptr speeds_size = Computer::speeds.size() * sizeof(dim::Vector4);
+    const GLsizeiptr masses_size = Computer::masses.size() * sizeof(float);
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    GLsizeiptr array_size = Computer::positions.size() * sizeof(dim::Vector4);
-    glBufferData(GL_ARRAY_BUFFER, 3 * array_size, NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, array_size, Computer::positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 1 * array_size, array_size, Computer::speeds.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 2 * array_size, array_size, Computer::colors.data());
+    glBufferData(GL_ARRAY_BUFFER, positions_size + speeds_size + masses_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
+    glBufferSubData(GL_ARRAY_BUFFER, positions_size, speeds_size, Computer::speeds.data());
+    glBufferSubData(GL_ARRAY_BUFFER, positions_size + speeds_size, masses_size, Computer::masses.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -147,6 +151,8 @@ void Renderer::draw()
     bind_vbo();
 
     dim::Shader::get("galaxy").send_uniform("u_mvp", dim::Window::get_camera().get_matrix());
+    dim::Shader::get("galaxy").send_uniform("u_color_positive_mass", Menu::color_positive_mass);
+    dim::Shader::get("galaxy").send_uniform("u_color_negative_mass", Menu::color_negative_mass);
     draw_vbo();
 
     unbind_vbo();
@@ -189,8 +195,6 @@ void Renderer::draw()
     blur_fbo_2.get_texture().bind();
     post_vbo.bind();
 
-    dim::Shader::get("post").send_uniform("u_simulation_model", static_cast<int>(Simulator::simulation_model));
-    dim::Shader::get("post").send_uniform("u_color_type", static_cast<int>(Simulator::simulation_type));
     dim::Shader::get("post").send_uniform("u_galaxy", galaxy_fbo_1.get_texture());
     dim::Shader::get("post").send_uniform("u_blur", blur_fbo_2.get_texture());
     post_vbo.draw();

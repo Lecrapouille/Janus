@@ -45,6 +45,8 @@ public:
     static float            galaxies_distance;      // The distance between the galaxies.
     static float            stars_speed;            // The initial speed of the stars.
     static float            black_hole_mass;        // The mass of the black hole.
+    static dim::Vector4     color_negative_mass;    // Color for negative masses.
+    static dim::Vector4     color_positive_mass;    // Color for positive masses.
 
     /**
      * @brief Handle the events of the menu.

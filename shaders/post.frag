@@ -5,7 +5,6 @@ in vec2 v_texcoord;
 
 out vec4 frag_color;
 
-uniform int u_color_type;
 uniform sampler2D u_galaxy;
 uniform sampler2D u_blur;
 

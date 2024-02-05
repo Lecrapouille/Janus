@@ -1,7 +1,8 @@
 #include "Computer.hpp"
 #include "Simulator.hpp"
 
-std::vector<dim::Vector4>       Computer::colors;
+size_t                          Computer::simulation_iterations;
+float                           Computer::simulation_time;
 std::vector<float>              Computer::masses;
 std::vector<dim::Vector4>       Computer::positions;
 std::vector<dim::Vector4>       Computer::speeds;
@@ -15,7 +16,7 @@ cl::Buffer                      Computer::smoothing_length_buffer;
 cl::Buffer                      Computer::interaction_rate_buffer;
 cl::Buffer                      Computer::black_hole_mass_buffer;
 
-void Computer::random_sphere(dim::Vector4& position, float& mass, dim::Vector4& color)
+void Computer::random_sphere(dim::Vector4& position, float& mass)
 {
     dim::Vector3 result = dim::Vector3::null;
 
@@ -28,10 +29,9 @@ void Computer::random_sphere(dim::Vector4& position, float& mass, dim::Vector4& 
     while (result.get_norm() > Simulator::galaxy_diameter / 2.f);
     position = dim::Vector4(result, 0.0f);
     mass = 1.0f;
-    color = dim::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void Computer::random_sphere(const float negative_mass_proportion, dim::Vector4& position, float& mass, dim::Vector4& color)
+void Computer::random_sphere(const float negative_mass_proportion, dim::Vector4& position, float& mass)
 {
     dim::Vector3 result = dim::Vector3::null;
 
@@ -44,7 +44,6 @@ void Computer::random_sphere(const float negative_mass_proportion, dim::Vector4&
     while (result.get_norm() > Simulator::galaxy_diameter / 2.f);
     position = dim::Vector4(result, 0.0f);
     mass = (dim::random_float(0.0f, 1.0f) < negative_mass_proportion) ? -1.0f : 1.0f;
-    color = (mass >= 0.0f) ? dim::Vector4(1.0f, 0.0f, 0.0f, 1.0f) : dim::Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 }
 
 void Computer::create_galaxy(int i)
@@ -78,14 +77,12 @@ void Computer::create_universe(int i)
 }
 
 void Computer::init()
-{
-    colors.clear();
+{;
     masses.clear();
     positions.clear();
     speeds.clear();
     accelerations.clear();
 
-    colors.resize(Simulator::nb_stars);
     masses.resize(Simulator::nb_stars);
     positions.resize(Simulator::nb_stars);
     speeds.resize(Simulator::nb_stars);
@@ -96,12 +93,12 @@ void Computer::init()
         if (Simulator::simulation_model == SimulationModel::Old)
         {
             // All masses are +1
-            random_sphere(positions[i], masses[i], colors[i]);
+            random_sphere(positions[i], masses[i]);
         }
         else // Newton, anti-newton
         {
             // Masses are randomized +1 or -1
-            random_sphere(Simulator::negative_mass_proportion, positions[i], masses[i], colors[i]);
+            random_sphere(Simulator::negative_mass_proportion, positions[i], masses[i]);
         }
 
         switch (Simulator::simulation_type)
@@ -121,6 +118,9 @@ void Computer::init()
     smoothing_length_buffer = ComputeShader::Buffer(Simulator::smoothing_length, Permissions::Read);
     interaction_rate_buffer = ComputeShader::Buffer(Simulator::interaction_rate, Permissions::Read);
     black_hole_mass_buffer = ComputeShader::Buffer(Simulator::black_hole_mass, Permissions::Read);
+
+    simulation_iterations = 0;
+    simulation_time = 0.0f;
 }
 
 void Computer::compute()
@@ -159,4 +159,7 @@ void Computer::compute()
     ComputeShader::launch("integration", { &positions_buffer, &speeds_buffer, &accelerations_buffer, &step_buffer }, cl::NDRange(speeds.size()));
     ComputeShader::get_data(positions_buffer, positions);
     ComputeShader::get_data(speeds_buffer, speeds);
+
+    simulation_iterations++;
+    simulation_time += Menu::step;
 }

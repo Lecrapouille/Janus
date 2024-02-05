@@ -16,6 +16,8 @@ float                   Menu::galaxy_thickness;
 float                   Menu::galaxies_distance;
 float                   Menu::stars_speed;
 float                   Menu::black_hole_mass;
+dim::Vector4            Menu::color_negative_mass;
+dim::Vector4            Menu::color_positive_mass;
 
 void Menu::check_events(const sf::Event& sf_event)
 {
@@ -57,11 +59,14 @@ std::vector<bool> Menu::centered_buttons(const std::vector<std::string> texts, f
 
 void Menu::set_default_values()
 {
+    color_positive_mass = dim::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+    color_negative_mass = dim::Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+
     step                    = 0.001f;
     smoothing_length        = 1.f;
     galaxies_distance       = 75.f;
     black_hole_mass         = 1000.f;
-    negative_mass_proportion = 0.5f;
+    negative_mass_proportion = 0.3f;
 
     switch (simulation_type)
     {
@@ -96,76 +101,65 @@ void Menu::set_default_values()
 
 void Menu::galaxy()
 {
-    ImGui::Text("The number of stars");
+    ImGui::Text("Number of stars");
     ImGui::SliderInt("##nb_stars", &nb_stars, 1000, 1000000, NULL, ImGuiSliderFlags_Logarithmic);
+    ImGui::ColorPicker4("##color_positive_mass", (float*)&Menu::color_positive_mass, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
 
     ImGui::NewLine();
 
-    ImGui::Text("The diameter of the galaxy");
+    ImGui::Text("Diameter of the galaxy");
     ImGui::SliderFloat("##galaxy_diameter", &galaxy_diameter, 10.f, 1000.f, "%.0f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The thickness of the galaxy");
+    ImGui::Text("Thickness of the galaxy");
     ImGui::SliderFloat("##galaxy_thickness", &galaxy_thickness, 1.f, 100.f, "%.0f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The initial speed of the stars");
+    ImGui::Text("Initial speed of the stars");
     ImGui::SliderFloat("##stars_speed", &stars_speed, 0.f, 500.f, "%.1f");
-
-    if (simulation_model == SimulationModel::Old)
-    {
-        ImGui::NewLine();
-        ImGui::Text("The mass of the black hole");
-        ImGui::SliderFloat("##black_hole_mass", &black_hole_mass, 0.f, 1000000.f, "%.0f", ImGuiSliderFlags_Logarithmic);
-    }
-    else
-    {
-        // Just for security, because models do not use explicitly
-        black_hole_mass = 0.0f;
-    }
 }
 
 void Menu::collision()
 {
-    ImGui::Text("The number of stars");
+    ImGui::Text("Number of stars");
     ImGui::SliderInt("##nb_stars", &nb_stars, 1000, 1000000, NULL, ImGuiSliderFlags_Logarithmic);
 
     ImGui::NewLine();
 
-    ImGui::Text("The diameter of the galaxies");
+    ImGui::Text("Diameter of galaxies");
     ImGui::SliderFloat("##galaxy_diameter", &galaxy_diameter, 10.f, 1000.f, "%.0f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The thickness of the galaxies");
+    ImGui::Text("Thickness of galaxies");
     ImGui::SliderFloat("##galaxy_thickness", &galaxy_thickness, 1.f, 100.f, "%.0f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The distance between the galaxies");
+    ImGui::Text("Distance between galaxies");
     ImGui::SliderFloat("##galaxies_distance", &galaxies_distance, 10.f, 1000.f, "%.0f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The initial speed of the stars");
+    ImGui::Text("Initial speed of stars");
     ImGui::SliderFloat("##stars_speed", &stars_speed, 0.f, 500.f, "%.1f");
 }
 
 void Menu::universe()
 {
-    ImGui::Text("The number of galaxies");
+    ImGui::Text("Number of galaxies");
     ImGui::SliderInt("##nb_stars", &nb_stars, 1000, 1000000, NULL, ImGuiSliderFlags_Logarithmic);
 
     ImGui::NewLine();
 
-    ImGui::Text("Ihe initial diameter of the universe");
+    ImGui::Text("Initial universe diameter");
     ImGui::SliderFloat("##galaxy_diameter", &galaxy_diameter, 1.f, 100.f, "%.1f");
 
     ImGui::NewLine();
 
-    ImGui::Text("The initial speed of the galaxies");
+    ImGui::Text("Initial speed of galaxies");
     ImGui::SliderFloat("##stars_speed", &stars_speed, 0.f, 500.f, "%.1f");
 }
 
@@ -178,10 +172,31 @@ void Menu::display()
         ImGui::Begin("Simulation settings (F1 to hide)");
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.9f);
 
-        ImGui::NewLine();
+        title("Simulation");
+        std::string timing = "Iterations: " + std::to_string(Computer::simulation_iterations)
+            + ", time: " + std::to_string(Computer::simulation_time);
+        ImGui::Text("%s", timing.c_str());
 
+        std::vector<bool> buttons = centered_buttons({ "Reset", "Restart", pause_button }, 25.f, 5.f);
+        if (buttons[2])
+        {
+            pause = !pause;
+        }
+        pause_button = (pause ? "Play" : "Pause");
+        if (buttons[1])
+        {
+            Simulator::reload = true;
+        }
+        if (buttons[0])
+        {
+            set_default_values();
+            Simulator::reload = true;
+        }
+        active = ImGui::IsWindowFocused();
+
+        ImGui::NewLine();
         SimulationType temp_type = simulation_type;
-        ImGui::Text("The type of simulation");
+        ImGui::Text("What");
         ImGui::Combo("##simulation_type", reinterpret_cast<int*>(&simulation_type), "Galaxy\0Collision\0Universe\0");
         if (simulation_type != temp_type)
         {
@@ -190,10 +205,9 @@ void Menu::display()
         }
 
         ImGui::NewLine();
-
         SimulationModel temp_model = simulation_model;
-        ImGui::Text("The simulation model");
-        ImGui::Combo("##simulation_model", reinterpret_cast<int*>(&simulation_model), "None\0Newton\0AntiNewton\0");
+        ImGui::Text("Mathematic model");
+        ImGui::Combo("##simulation_model", reinterpret_cast<int*>(&simulation_model), "Black Hole\0Newton\0Anti Newton\0");
         if (simulation_model != temp_model)
         {
             if (simulation_model == SimulationModel::Old)
@@ -203,12 +217,23 @@ void Menu::display()
             Simulator::reload = true;
         }
 
-        if (simulation_model != SimulationModel::Old)
+        if (simulation_model == SimulationModel::Old)
         {
             ImGui::NewLine();
-            title("Newton or Anti-Newton model");
+            ImGui::Text("Mass of the black hole");
+            ImGui::SliderFloat("##black_hole_mass", &black_hole_mass, 0.f, 1000000.f, "%.0f", ImGuiSliderFlags_Logarithmic);
+        }
+        else
+        {
+            // Just for security, because models do not use explicitly
+            black_hole_mass = 0.0f;
+
+            ImGui::NewLine();
+            title("Newton or Anti-Newton");
             ImGui::Text("Negative mass proportion");
             ImGui::SliderFloat("##negative_mass_proportion", &negative_mass_proportion, 0.0f, 1.0f, "%.4f");
+
+            ImGui::ColorPicker4("##color_negative_mass", (float*)&Menu::color_negative_mass, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
         }
 
         ImGui::NewLine();
@@ -217,17 +242,17 @@ void Menu::display()
 
         ImGui::NewLine();
 
-        ImGui::Text("The time step duration");
+        ImGui::Text("Time step duration");
         ImGui::SliderFloat("##step", &step, 0.0001f, 0.1f, "%.4f", ImGuiSliderFlags_Logarithmic);
 
         ImGui::NewLine();
 
-        ImGui::Text("The smoothing length");
+        ImGui::Text("Smoothing length");
         ImGui::SliderFloat("##smoothing_length", &smoothing_length, 0.001f, 1.f, NULL, ImGuiSliderFlags_Logarithmic);
 
         ImGui::NewLine();
 
-        ImGui::Text("The interaction rate");
+        ImGui::Text("Interaction rate");
         ImGui::SliderFloat("##interaction_rate", &interaction_rate, 0.001f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
 
         ImGui::NewLine();
@@ -243,29 +268,6 @@ void Menu::display()
         case SimulationType::Universe: universe(); break;
         default: break;
         }
-
-        ImGui::NewLine();
-
-        std::vector<bool> buttons = centered_buttons({ "Reset", "Restart", pause_button }, 25.f, 20.f);
-
-        if (buttons[2])
-        {
-            pause = !pause;
-        }
-        pause_button = (pause ? "Play" : "Pause");
-
-        if (buttons[1])
-        {
-            Simulator::reload = true;
-        }
-
-        if (buttons[0])
-        {
-            set_default_values();
-            Simulator::reload = true;
-        }
-
-        active = ImGui::IsWindowFocused();
 
         ImGui::End();
     }
