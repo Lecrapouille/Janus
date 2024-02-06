@@ -8,6 +8,24 @@ on:
       - master
 
 jobs:
+  build_linux:
+    name: Build for Linux
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install pkg-config ocl-icd-opencl-dev opencl-clhpp-headers libsfml-dev libglm-dev libglew-dev libglfw3-dev libdw-dev
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Compile Janus
+        run: |
+          make download-external-libs
+          VERBOSE=1 make -j`nproc --all`
+
   build_macos:
     name: Build for MacOS X
     runs-on: macos-latest

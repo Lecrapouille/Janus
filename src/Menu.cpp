@@ -49,7 +49,7 @@ std::vector<bool> Menu::centered_buttons(const std::vector<std::string> texts, f
     {
         ImGui::SameLine();
         ImGui::SetCursorPosX(spaces_size + buttons_widths * i + spaces_size * i);
-        ImGui::Text("");
+        ImGui::Text("%s", "");
         ImGui::SameLine();
         result[i] = ImGui::Button(texts[i].data(), ImVec2(buttons_widths, buttons_height));
     }
