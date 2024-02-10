@@ -46,11 +46,12 @@ void Computer::random_sphere(const float negative_mass_proportion, dim::Vector4&
     mass = (dim::random_float(0.0f, 1.0f) < negative_mass_proportion) ? -1.0f : 1.0f;
 }
 
+// galaxy centered to (0, 0) coordinates
 void Computer::create_galaxy(int i)
 {
     positions[i].set_norm(static_cast<float>(pow(positions[i].get_norm() / (Simulator::galaxy_diameter / 2.f), 5)) * (Simulator::galaxy_diameter / 2.f));
     positions[i].y *= Simulator::galaxy_thickness / Simulator::galaxy_diameter;
-    speeds[i] = dim::Vector4(dim::normalize(dim::Vector3(positions[i]) ^ dim::Vector3(0.f, 1.f, 0.f)) * Simulator::stars_speed, 0.f);
+    speeds[i] = dim::Vector4(dim::normalize(dim::Vector3(positions[i] + dim::Vector4(0.0000001f, 0.0000001f, 0.0000001f, 1.0f)) ^ dim::Vector3(0.f, 1.f, 0.f)) * Simulator::stars_speed, 0.f);
 }
 
 void Computer::create_collision(int i)
