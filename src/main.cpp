@@ -3,7 +3,7 @@
 
 int main()
 {
-    dim::Window::open("Galaxy simulation", 0.75f, "resources/icons/icon.png");
+    dim::Window::open("Galaxy simulation", 0.75f);
     Simulator::init();
 
     // The computation thread.
