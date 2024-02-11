@@ -1,4 +1,4 @@
-#version 430
+#version 330 core
 precision mediump float;
 
 in float v_brightness;

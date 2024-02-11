@@ -1,4 +1,4 @@
-#version 430
+#version 330 core
 precision mediump float;
 
 uniform vec4 u_color_positive_mass;
