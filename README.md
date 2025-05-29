@@ -2,12 +2,12 @@
 
 Project-based on [Angel Uriot's Galaxy_simulation](https://github.com/angeluriot/Galaxy_simulation) in which
 we add negative masses and apply either Newton (`m gamma = mM/d^2`) or anti-Newton law (`|m| gamma = mM/d^2`).
+More information on this model: https://www.januscosmologicalmodel.fr/post/janus
 
 ## Compilation Linux
 
 ```
 sudo apt-get install pkg-config ocl-icd-opencl-dev opencl-clhpp-headers libsfml-dev libglm-dev libglew-dev libglfw3-dev libdw-dev
-w
 
 git clone https://github.com/Lecrapouille/Janus.git --recursive
 cd Janus
@@ -17,12 +17,17 @@ make -j`nproc --all`
 ./build/Janus
 ```
 
-Probable issue: Depending on whether you are on Ubuntu 20 or 22 or Debian 11, you may have to change the OpenCL header in [libraries.hpp](src/libraries.hpp).
+## Possible issue
+
+- Depending on whether you are using Ubuntu 20, Ubuntu 22, or Debian 11, you may need to modify the OpenCL header in [libraries.hpp](src/libraries.hpp).
 Choose between `#include <CL/opencl.hpp>` and `#include <CL/cl2.hpp>`.
+- Not working for MacOS because OpenCL cannot be used because Apple no longer supports OpenGL 4.x used by OpenCL.
 
 ## Some screenshots
 
-Made with a sagy GT710
+Made with a saggy GT710.
+
+Two colors: red for positive masses, green for negative masses.
 
 ![unnamed](https://github.com/user-attachments/assets/9af1cc4d-b39b-454e-96a1-71352aa53c0d)
 
