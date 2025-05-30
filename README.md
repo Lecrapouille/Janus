@@ -17,6 +17,8 @@ make -j`nproc --all`
 ./build/Janus
 ```
 
+You need SFML v3.0, that is probably not availbale on Ubuntu (2.6). Try compile https://github.com/SFML/SFML
+
 ## Possible issue
 
 - Depending on whether you are using Ubuntu 20, Ubuntu 22, or Debian 11, you may need to modify the OpenCL header in [libraries.hpp](src/libraries.hpp).

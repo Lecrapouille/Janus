@@ -1,19 +1,21 @@
 #include "Renderer.hpp"
 #include "Simulator.hpp"
 
-GLuint                  Renderer::vbo = 0;
-GLuint                  Renderer::vao = 0;
-dim::VertexBuffer       Renderer::blur_vbo;
-dim::VertexBuffer       Renderer::post_vbo;
-dim::FrameBuffer        Renderer::galaxy_fbo_1;
-dim::FrameBuffer        Renderer::galaxy_fbo_2;
-dim::FrameBuffer        Renderer::blur_fbo_1;
-dim::FrameBuffer        Renderer::blur_fbo_2;
+GLuint Renderer::vbo = 0;
+GLuint Renderer::vao = 0;
+dim::VertexBuffer Renderer::blur_vbo;
+dim::VertexBuffer Renderer::post_vbo;
+dim::FrameBuffer Renderer::galaxy_fbo_1;
+dim::FrameBuffer Renderer::galaxy_fbo_2;
+dim::FrameBuffer Renderer::blur_fbo_1;
+dim::FrameBuffer Renderer::blur_fbo_2;
 
 void Renderer::init_vbo()
 {
-    const GLsizeiptr positions_size = Computer::positions.size() * sizeof(dim::Vector4);
-    const GLsizeiptr speeds_size = Computer::speeds.size() * sizeof(dim::Vector4);
+    const GLsizeiptr positions_size =
+        Computer::positions.size() * sizeof(dim::Vector4);
+    const GLsizeiptr speeds_size =
+        Computer::speeds.size() * sizeof(dim::Vector4);
     const GLsizeiptr masses_size = Computer::masses.size() * sizeof(float);
 
     // delete buffers
@@ -23,24 +25,49 @@ void Renderer::init_vbo()
     // Create VBO
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, positions_size + speeds_size + masses_size, NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, positions_size, positions_size + speeds_size, Computer::speeds.data());
-    glBufferSubData(GL_ARRAY_BUFFER, positions_size + speeds_size, positions_size + speeds_size + masses_size, Computer::masses.data());
+    glBufferData(GL_ARRAY_BUFFER,
+                 positions_size + speeds_size + masses_size,
+                 NULL,
+                 GL_DYNAMIC_DRAW);
+    glBufferSubData(
+        GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    positions_size,
+                    positions_size + speeds_size,
+                    Computer::speeds.data());
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    positions_size + speeds_size,
+                    positions_size + speeds_size + masses_size,
+                    Computer::masses.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Create VAO
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    GLint positions = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_position");
-    glVertexAttribPointer(positions, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
+    GLint positions =
+        glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_position");
+    glVertexAttribPointer(
+        positions, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0));
     glEnableVertexAttribArray(positions);
-    GLint speeds = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_speed");
-    glVertexAttribPointer(speeds, 4, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(positions_size));
+    GLint speeds =
+        glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_speed");
+    glVertexAttribPointer(speeds,
+                          4,
+                          GL_FLOAT,
+                          GL_FALSE,
+                          0,
+                          reinterpret_cast<GLvoid*>(positions_size));
     glEnableVertexAttribArray(speeds);
-    GLint masses = glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_mass");
-    glVertexAttribPointer(masses, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(positions_size + speeds_size));
+    GLint masses =
+        glGetAttribLocation(dim::Shader::get("galaxy").get_id(), "a_mass");
+    glVertexAttribPointer(
+        masses,
+        1,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        reinterpret_cast<GLvoid*>(positions_size + speeds_size));
     glEnableVertexAttribArray(masses);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -48,21 +75,32 @@ void Renderer::init_vbo()
 
 void Renderer::update_vbo()
 {
-    const GLsizeiptr positions_size = Computer::positions.size() * sizeof(dim::Vector4);
-    const GLsizeiptr speeds_size = Computer::speeds.size() * sizeof(dim::Vector4);
+    const GLsizeiptr positions_size =
+        Computer::positions.size() * sizeof(dim::Vector4);
+    const GLsizeiptr speeds_size =
+        Computer::speeds.size() * sizeof(dim::Vector4);
     const GLsizeiptr masses_size = Computer::masses.size() * sizeof(float);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, positions_size + speeds_size + masses_size, NULL, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
-    glBufferSubData(GL_ARRAY_BUFFER, positions_size, speeds_size, Computer::speeds.data());
-    glBufferSubData(GL_ARRAY_BUFFER, positions_size + speeds_size, masses_size, Computer::masses.data());
+    glBufferData(GL_ARRAY_BUFFER,
+                 positions_size + speeds_size + masses_size,
+                 NULL,
+                 GL_DYNAMIC_DRAW);
+    glBufferSubData(
+        GL_ARRAY_BUFFER, 0, positions_size, Computer::positions.data());
+    glBufferSubData(
+        GL_ARRAY_BUFFER, positions_size, speeds_size, Computer::speeds.data());
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    positions_size + speeds_size,
+                    masses_size,
+                    Computer::masses.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Renderer::draw_vbo()
 {
-    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(Computer::positions.size()));
+    glDrawArrays(
+        GL_POINTS, 0, static_cast<GLsizei>(Computer::positions.size()));
 }
 
 void Renderer::bind_vbo()
@@ -81,12 +119,28 @@ void Renderer::init()
 {
     init_vbo();
 
-    blur_vbo.send_data("blur", dim::Mesh::screen, dim::DataType::Positions | dim::DataType::TexCoords);
-    post_vbo.send_data("post", dim::Mesh::screen, dim::DataType::Positions | dim::DataType::TexCoords);
-    galaxy_fbo_1.create(dim::Window::get_size(), dim::Texture::Filtering::Linear, dim::Texture::Warpping::MirroredRepeat, dim::Texture::Type::RGB_16f);
-    galaxy_fbo_2.create(dim::Window::get_size(), dim::Texture::Filtering::Linear, dim::Texture::Warpping::MirroredRepeat, dim::Texture::Type::RGB_16f);
-    blur_fbo_1.create(dim::Window::get_size(), dim::Texture::Filtering::Linear, dim::Texture::Warpping::MirroredRepeat, dim::Texture::Type::RGB_16f);
-    blur_fbo_2.create(dim::Window::get_size(), dim::Texture::Filtering::Linear, dim::Texture::Warpping::MirroredRepeat, dim::Texture::Type::RGB_16f);
+    blur_vbo.send_data("blur",
+                       dim::Mesh::screen,
+                       dim::DataType::Positions | dim::DataType::TexCoords);
+    post_vbo.send_data("post",
+                       dim::Mesh::screen,
+                       dim::DataType::Positions | dim::DataType::TexCoords);
+    galaxy_fbo_1.create(dim::Window::get_size(),
+                        dim::Texture::Filtering::Linear,
+                        dim::Texture::Warpping::MirroredRepeat,
+                        dim::Texture::Type::RGB_16f);
+    galaxy_fbo_2.create(dim::Window::get_size(),
+                        dim::Texture::Filtering::Linear,
+                        dim::Texture::Warpping::MirroredRepeat,
+                        dim::Texture::Type::RGB_16f);
+    blur_fbo_1.create(dim::Window::get_size(),
+                      dim::Texture::Filtering::Linear,
+                      dim::Texture::Warpping::MirroredRepeat,
+                      dim::Texture::Type::RGB_16f);
+    blur_fbo_2.create(dim::Window::get_size(),
+                      dim::Texture::Filtering::Linear,
+                      dim::Texture::Warpping::MirroredRepeat,
+                      dim::Texture::Type::RGB_16f);
 
     update_vbo();
 }
@@ -134,7 +188,8 @@ void Renderer::draw()
     dim::Shader::get("galaxy").bind();
     bind_vbo();
 
-    dim::Shader::get("galaxy").send_uniform("u_mvp", dim::Window::get_camera().get_matrix());
+    dim::Shader::get("galaxy").send_uniform(
+        "u_mvp", dim::Window::get_camera().get_matrix());
     draw_vbo();
 
     unbind_vbo();
@@ -150,9 +205,12 @@ void Renderer::draw()
     dim::Shader::get("galaxy").bind();
     bind_vbo();
 
-    dim::Shader::get("galaxy").send_uniform("u_mvp", dim::Window::get_camera().get_matrix());
-    dim::Shader::get("galaxy").send_uniform("u_color_positive_mass", Menu::color_positive_mass);
-    dim::Shader::get("galaxy").send_uniform("u_color_negative_mass", Menu::color_negative_mass);
+    dim::Shader::get("galaxy").send_uniform(
+        "u_mvp", dim::Window::get_camera().get_matrix());
+    dim::Shader::get("galaxy").send_uniform("u_color_positive_mass",
+                                            Menu::color_positive_mass);
+    dim::Shader::get("galaxy").send_uniform("u_color_negative_mass",
+                                            Menu::color_negative_mass);
     draw_vbo();
 
     unbind_vbo();
@@ -165,7 +223,8 @@ void Renderer::draw()
     galaxy_fbo_2.get_texture().bind();
     blur_vbo.bind();
 
-    dim::Shader::get("blur").send_uniform("u_texture", galaxy_fbo_2.get_texture());
+    dim::Shader::get("blur").send_uniform("u_texture",
+                                          galaxy_fbo_2.get_texture());
     dim::Shader::get("blur").send_uniform("u_horizontal", 1);
     blur_vbo.draw();
 
@@ -180,7 +239,8 @@ void Renderer::draw()
     blur_fbo_1.get_texture().bind();
     blur_vbo.bind();
 
-    dim::Shader::get("blur").send_uniform("u_texture", blur_fbo_1.get_texture());
+    dim::Shader::get("blur").send_uniform("u_texture",
+                                          blur_fbo_1.get_texture());
     dim::Shader::get("blur").send_uniform("u_horizontal", 0);
     blur_vbo.draw();
 
@@ -195,7 +255,8 @@ void Renderer::draw()
     blur_fbo_2.get_texture().bind();
     post_vbo.bind();
 
-    dim::Shader::get("post").send_uniform("u_galaxy", galaxy_fbo_1.get_texture());
+    dim::Shader::get("post").send_uniform("u_galaxy",
+                                          galaxy_fbo_1.get_texture());
     dim::Shader::get("post").send_uniform("u_blur", blur_fbo_2.get_texture());
     post_vbo.draw();
 

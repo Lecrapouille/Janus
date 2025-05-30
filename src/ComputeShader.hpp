@@ -8,9 +8,11 @@
  */
 enum class Permissions
 {
-    Read    = CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,      // The compute shader can only read the data.
-    Write   = CL_MEM_WRITE_ONLY,                            // The compute shader can only write on the data.
-    All     = CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR      // The compute shader can do both.
+    Read = CL_MEM_READ_ONLY |
+           CL_MEM_COPY_HOST_PTR, // The compute shader can only read the data.
+    Write = CL_MEM_WRITE_ONLY, // The compute shader can only write on the data.
+    All = CL_MEM_READ_WRITE |
+          CL_MEM_COPY_HOST_PTR // The compute shader can do both.
 };
 
 /**
@@ -20,10 +22,10 @@ class ComputeShader
 {
 public:
 
-    static cl::Program              program;        // The program that will run on the device.
-    static cl::Context              context;        // The context which holds the device.
-    static cl::Device               device;         // The device where the kernel will run.
-    static cl::CommandQueue queue;                  // The command queue of the kernel.
+    static cl::Program program;    // The program that will run on the device.
+    static cl::Context context;    // The context which holds the device.
+    static cl::Device device;      // The device where the kernel will run.
+    static cl::CommandQueue queue; // The command queue of the kernel.
 
     /**
      * @brief Find the default device.
@@ -37,7 +39,7 @@ public:
      *
      * @param path the path to the compute shader source code
      */
-    static void     init(const std::string& path);
+    static void init(const std::string& path);
 
     /**
      * @brief Give a buffer from an array of data and its permissions.
@@ -48,9 +50,13 @@ public:
      * @return the buffer
      */
     template <typename T>
-    static cl::Buffer Buffer(std::vector<T>& data, Permissions permissions = Permissions::All)
+    static cl::Buffer Buffer(std::vector<T>& data,
+                             Permissions permissions = Permissions::All)
     {
-        return cl::Buffer(context, static_cast<cl_mem_flags>(permissions), data.size() * sizeof(T), data.data());
+        return cl::Buffer(context,
+                          static_cast<cl_mem_flags>(permissions),
+                          data.size() * sizeof(T),
+                          data.data());
     }
 
     /**
@@ -62,9 +68,11 @@ public:
      * @return the buffer
      */
     template <typename T>
-    static cl::Buffer Buffer(T& data, Permissions permissions = Permissions::All)
+    static cl::Buffer Buffer(T& data,
+                             Permissions permissions = Permissions::All)
     {
-        return cl::Buffer(context, static_cast<cl_mem_flags>(permissions), sizeof(T), &data);
+        return cl::Buffer(
+            context, static_cast<cl_mem_flags>(permissions), sizeof(T), &data);
     }
 
     /**
@@ -75,7 +83,10 @@ public:
      * @param global the global threads structure
      * @param local the local threads structure
      */
-    static void launch(const std::string& function, const std::vector<cl::Buffer*>& buffers, const cl::NDRange& global, const cl::NDRange& local);
+    static void launch(const std::string& function,
+                       const std::vector<cl::Buffer*>& buffers,
+                       const cl::NDRange& global,
+                       const cl::NDRange& local);
 
     /**
      * @brief Launch a function of the compute shader.
@@ -84,7 +95,9 @@ public:
      * @param buffers the inputs
      * @param global the global threads structure
      */
-    static void launch(const std::string& function, const std::vector<cl::Buffer*>& buffers, const cl::NDRange& global);
+    static void launch(const std::string& function,
+                       const std::vector<cl::Buffer*>& buffers,
+                       const cl::NDRange& global);
 
     /**
      * @brief Update the given data array.
@@ -96,7 +109,8 @@ public:
     template <typename T>
     static void get_data(const cl::Buffer buffer, std::vector<T>& data)
     {
-        queue.enqueueReadBuffer(buffer, CL_TRUE, 0, data.size() * sizeof(T), data.data());
+        queue.enqueueReadBuffer(
+            buffer, CL_TRUE, 0, data.size() * sizeof(T), data.data());
     }
 
     /**

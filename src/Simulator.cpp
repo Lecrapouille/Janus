@@ -1,20 +1,20 @@
 #include "Simulator.hpp"
 
-std::atomic<bool>       Simulator::computation_done;
-std::atomic<bool>       Simulator::reload;
-std::atomic<bool>       Simulator::waiting;
-SimulationType          Simulator::simulation_type;
-SimulationModel         Simulator::simulation_model;
-float                   Simulator::negative_mass_proportion;
-float                   Simulator::step;
-float                   Simulator::smoothing_length;
-float                   Simulator::interaction_rate;
-int                     Simulator::nb_stars;
-float                   Simulator::galaxy_diameter;
-float                   Simulator::galaxy_thickness;
-float                   Simulator::galaxies_distance;
-float                   Simulator::stars_speed;
-float                   Simulator::black_hole_mass;
+std::atomic<bool> Simulator::computation_done;
+std::atomic<bool> Simulator::reload;
+std::atomic<bool> Simulator::waiting;
+SimulationType Simulator::simulation_type;
+SimulationModel Simulator::simulation_model;
+float Simulator::negative_mass_proportion;
+float Simulator::step;
+float Simulator::smoothing_length;
+float Simulator::interaction_rate;
+int Simulator::nb_stars;
+float Simulator::galaxy_diameter;
+float Simulator::galaxy_thickness;
+float Simulator::galaxies_distance;
+float Simulator::stars_speed;
+float Simulator::black_hole_mass;
 
 void Simulator::init()
 {
@@ -24,12 +24,16 @@ void Simulator::init()
     camera_pos.set_phi(dim::pi / 3.f);
     cam.set_position(camera_pos);
     dim::Window::set_camera(cam);
-    dim::Window::set_controller(dim::OrbitController(dim::Vector3::null, dim::OrbitController::default_sensitivity, 2.f));
+    dim::Window::set_controller(dim::OrbitController(
+        dim::Vector3::null, dim::OrbitController::default_sensitivity, 2.f));
 
     // Used for the display
-    dim::Shader::add("galaxy", "data/shaders/galaxy.vert", "data/shaders/galaxy.frag");
-    dim::Shader::add("blur", "data/shaders/blur.vert", "data/shaders/blur.frag");
-    dim::Shader::add("post", "data/shaders/post.vert", "data/shaders/post.frag");
+    dim::Shader::add(
+        "galaxy", "data/shaders/galaxy.vert", "data/shaders/galaxy.frag");
+    dim::Shader::add(
+        "blur", "data/shaders/blur.vert", "data/shaders/blur.frag");
+    dim::Shader::add(
+        "post", "data/shaders/post.vert", "data/shaders/post.frag");
 
     // Used for computation
     ComputeShader::init("data/shaders/model.cl");

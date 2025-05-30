@@ -1,9 +1,9 @@
 #include "ComputeShader.hpp"
 
-cl::Program             ComputeShader::program;
-cl::Context             ComputeShader::context;
-cl::Device              ComputeShader::device;
-cl::CommandQueue        ComputeShader::queue;
+cl::Program ComputeShader::program;
+cl::Context ComputeShader::context;
+cl::Device ComputeShader::device;
+cl::CommandQueue ComputeShader::queue;
 
 cl::Device ComputeShader::get_default_device()
 {
@@ -18,7 +18,8 @@ cl::Device ComputeShader::get_default_device()
         exit(1);
     }
 
-    // Search for all the devices on the first platform and check if there are any available.
+    // Search for all the devices on the first platform and check if there are
+    // any available.
 
     auto platform = platforms.front();
     std::vector<cl::Device> devices;
@@ -41,7 +42,8 @@ void ComputeShader::init(const std::string& path)
 
     // Read OpenCL kernel file as a string.
     std::ifstream kernel_file(path);
-    std::string src(std::istreambuf_iterator<char>(kernel_file), (std::istreambuf_iterator<char>()));
+    std::string src(std::istreambuf_iterator<char>(kernel_file),
+                    (std::istreambuf_iterator<char>()));
 
     // Compile kernel program which will run on the device.
     cl::Program::Sources sources(1, src);
@@ -49,19 +51,26 @@ void ComputeShader::init(const std::string& path)
     program = cl::Program(context, sources);
 
     auto err = program.build();
-    if(err != CL_BUILD_SUCCESS)
+    if (err != CL_BUILD_SUCCESS)
     {
-        std::cerr << "Error!\nBuild Status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(device)
-                  << "\nBuild Log:\t " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
+        std::cerr << "Error!\nBuild Status: "
+                  << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(device)
+                  << "\nBuild Log:\t "
+                  << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device)
+                  << std::endl;
         exit(1);
     }
 
-    //std::vector<::size_t> maxWorkItems;
-    //maxWorkItems = device.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>();
-    //std::cout << maxWorkItems[0] << " " << maxWorkItems[1] << " " << maxWorkItems[2] << std::endl;
+    // std::vector<::size_t> maxWorkItems;
+    // maxWorkItems = device.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>();
+    // std::cout << maxWorkItems[0] << " " << maxWorkItems[1] << " " <<
+    // maxWorkItems[2] << std::endl;
 }
 
-void ComputeShader::launch(const std::string& function, const std::vector<cl::Buffer*>& buffers, const cl::NDRange& global, const cl::NDRange& local)
+void ComputeShader::launch(const std::string& function,
+                           const std::vector<cl::Buffer*>& buffers,
+                           const cl::NDRange& global,
+                           const cl::NDRange& local)
 {
     cl::Kernel kernel(program, function.data());
 
@@ -72,7 +81,9 @@ void ComputeShader::launch(const std::string& function, const std::vector<cl::Bu
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, local);
 }
 
-void ComputeShader::launch(const std::string& function, const std::vector<cl::Buffer*>& buffers, const cl::NDRange& global)
+void ComputeShader::launch(const std::string& function,
+                           const std::vector<cl::Buffer*>& buffers,
+                           const cl::NDRange& global)
 {
     cl::Kernel kernel(program, function.data());
 

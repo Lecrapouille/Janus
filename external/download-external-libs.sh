@@ -5,8 +5,6 @@
 ### It replaces git submodules that I dislike.
 ###############################################################################
 
-source ../.makefile/download-external-libs.sh
-
 ### Dear ImGui: Bloat-free Graphical User interface for C++ with minimal dependencies
 ### License: MIT
 cloning ocornut/imgui -b docking
@@ -14,6 +12,7 @@ cloning ocornut/imgui -b docking
 ### Dear ImGui backend for use with SFML
 ### License: MIT
 cloning SFML/imgui-sfml
+#(cd imgui-sfml && git fetch --unshallow && git checkout tags/v2.6)
 cp imgui-sfml/imconfig-SFML.h imgui/imconfig.h
 
 ### A simple graphics library (2D, 3D and windows).

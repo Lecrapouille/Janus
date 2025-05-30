@@ -1,5 +1,5 @@
-#include <dim/dimension3D.hpp>
 #include "Simulator.hpp"
+#include <dim/dimension3D.hpp>
 
 int main()
 {
@@ -7,11 +7,12 @@ int main()
     Simulator::init();
 
     // The computation thread.
-    std::thread simulation_thread([]()
-    {
-        while (dim::Window::running)
-            Simulator::compute_update();
-    });
+    std::thread simulation_thread(
+        []()
+        {
+            while (dim::Window::running)
+                Simulator::compute_update();
+        });
 
     // The render thread.
     while (dim::Window::running)
@@ -25,7 +26,8 @@ int main()
             Simulator::check_events(sf_event);
         }
 
-        dim::Window::get_controller().enable(!Menu::active || !Menu::visible, dim::Controller::Action::Look);
+        dim::Window::get_controller().enable(!Menu::active || !Menu::visible,
+                                             dim::Controller::Action::Look);
 
         dim::Window::clear(dim::Color::black);
         dim::Window::update();
