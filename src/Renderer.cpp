@@ -145,9 +145,9 @@ void Renderer::init()
     update_vbo();
 }
 
-void Renderer::check_events(const sf::Event& sf_event)
+void Renderer::check_events(const std::optional<sf::Event>& sf_event)
 {
-    if (sf_event.type == sf::Event::Resized)
+    if (sf_event->is<sf::Event::Resized>())
     {
         galaxy_fbo_1.set_size(dim::Window::get_size());
         galaxy_fbo_2.set_size(dim::Window::get_size());

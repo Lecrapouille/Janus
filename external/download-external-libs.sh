@@ -11,7 +11,7 @@ cloning ocornut/imgui -b docking
 
 ### Dear ImGui backend for use with SFML
 ### License: MIT
-cloning SFML/imgui-sfml
+cloning lecrapouille/imgui-sfml
 #(cd imgui-sfml && git fetch --unshallow && git checkout tags/v2.6)
 cp imgui-sfml/imconfig-SFML.h imgui/imconfig.h
 

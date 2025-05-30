@@ -106,7 +106,7 @@ void Simulator::render_update()
     }
 }
 
-void Simulator::check_events(const sf::Event& sf_event)
+void Simulator::check_events(const std::optional<sf::Event>& sf_event)
 {
     Renderer::check_events(sf_event);
 }

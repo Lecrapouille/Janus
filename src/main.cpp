@@ -18,8 +18,7 @@ int main()
     while (dim::Window::running)
     {
         // Check the events.
-        sf::Event sf_event;
-        while (dim::Window::poll_event(sf_event))
+        while (const std::optional<sf::Event> sf_event = dim::Window::poll_event())
         {
             dim::Window::check_events(sf_event);
             Menu::check_events(sf_event);

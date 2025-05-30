@@ -15,12 +15,26 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install pkg-config ocl-icd-opencl-dev opencl-clhpp-headers libsfml-dev libglm-dev libglew-dev libglfw3-dev libdw-dev
+          sudo apt-get install -y pkg-config ocl-icd-opencl-dev opencl-clhpp-headers
+          sudo apt-get install -y libglm-dev libglew-dev libglfw3-dev libdw-dev
+          sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxi-dev
+          sudo apt-get install -y libxinerama-dev libudev-dev
+          sudo apt-get install -y libvorbis-dev libogg-dev libflac-dev
+          sudo apt-get install -y libgl1-mesa-dev libegl1-mesa-dev libdrm-dev libgbm-dev
+          sudo apt-get install -y libfreetype6-dev cmake
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Clone and Compile SFML
+        run: |
+          git clone https://github.com/SFML/SFML.git
+          cd SFML
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DSFML_BUILD_EXAMPLES=FALSE -DSFML_BUILD_TEST_SUITE=FALSE -DSFML_BUILD_DOC=FALSE
+          cmake --build build -- -j`nproc --all`
+          sudo cmake --install build
+          sudo ldconfig
       - name: Compile Janus
         run: |
           make download-external-libs

@@ -65,7 +65,7 @@ public:
      *
      * @param sf_event the SFML event object
      */
-    static void check_events(const sf::Event& sf_event);
+    static void check_events(const std::optional<sf::Event>& sf_event);
 
     /**
      * @brief Draw the simulation.

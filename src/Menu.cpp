@@ -19,10 +19,10 @@ float Menu::black_hole_mass;
 dim::Vector4 Menu::color_negative_mass;
 dim::Vector4 Menu::color_positive_mass;
 
-void Menu::check_events(const sf::Event& sf_event)
+void Menu::check_events(const std::optional<sf::Event>& sf_event)
 {
-    if (sf_event.type == sf::Event::KeyReleased &&
-        sf_event.key.code == sf::Keyboard::Key::F1)
+    const auto* key_released = sf_event->getIf<sf::Event::KeyReleased>();
+    if (key_released && key_released->code == sf::Keyboard::Key::F1)
         visible = !visible;
 }
 
