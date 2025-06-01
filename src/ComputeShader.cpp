@@ -74,7 +74,7 @@ void ComputeShader::launch(const std::string& function,
 {
     cl::Kernel kernel(program, function.data());
 
-    for (int i = 0; i < buffers.size(); i++)
+    for (size_t i = 0; i < buffers.size(); i++)
         kernel.setArg(i, *(buffers[i]));
 
     queue = cl::CommandQueue(context, device);
@@ -87,7 +87,7 @@ void ComputeShader::launch(const std::string& function,
 {
     cl::Kernel kernel(program, function.data());
 
-    for (int i = 0; i < buffers.size(); i++)
+    for (size_t i = 0; i < buffers.size(); i++)
         kernel.setArg(i, *(buffers[i]));
 
     queue = cl::CommandQueue(context, device);

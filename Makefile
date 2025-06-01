@@ -44,30 +44,34 @@ USER_CCFLAGS += -Wno-sign-conversion -Wno-float-equal
 USER_CXXFLAGS += -Wno-undef -Wno-switch-enum -Wno-enum-compare
 
 ###################################################
-# Set thirdpart glm
+# Set third party glm
 #
 DEFINES += -DGLM_ENABLE_EXPERIMENTAL
 
 ###################################################
-# Set thirdpart Dimension3D
+# Set third party Dimension3D
 #
-INCLUDES += $(THIRDPART)/Dimension3D/includes $(call rsubdirs,$(THIRDPART)/Dimension3D/includes)
-DIMENSION3D_SUBDIRS := $(call rsubdirs,$(THIRDPART)/Dimension3D/sources)
+INCLUDES += $(THIRD_PARTIES_DIR)/Dimension3D/includes $(call rsubdirs,$(THIRD_PARTIES_DIR)/Dimension3D/includes)
+DIMENSION3D_SUBDIRS := $(call rsubdirs,$(THIRD_PARTIES_DIR)/Dimension3D/sources)
 VPATH += $(DIMENSION3D_SUBDIRS)
-SRC_FILES += $(call rwildcard,$(DIMENSION3D_SUBDIRS),*.cpp)
+SRC_FILES += $(call rwildcard,$(DIMENSION3D_SUBDIRS),*.cpp) $(THIRD_PARTIES_DIR)/Dimension3D/sources/dimension3D.cpp
 USER_CXXFLAGS += -Wno-useless-cast -Wno-conversion -Wno-sign-conversion -Wno-float-equal
 USER_CXXFLAGS += -Wno-float-equal -Wno-float-conversion -Wno-shadow -Wno-unused-parameter
 USER_CXXFLAGS += -Wno-unused-result -Wno-double-promotion -Wno-cast-qual
 USER_CXXFLAGS += -Wno-unused-variable
 
 ###################################################
-# Set thirdpart Dear ImGui
+# Set third party Dear ImGui
 #
-INCLUDES += $(THIRDPART)/imgui $(THIRDPART)/imgui/misc/cpp $(THIRDPART)/imgui-sfml
-VPATH += $(THIRDPART)/imgui $(THIRDPART)/imgui-sfml $(THIRDPART)/imgui/misc/cpp
-SRC_FILES += $(THIRDPART)/imgui/imgui_widgets.cpp $(THIRDPART)/imgui/imgui_draw.cpp
-SRC_FILES += $(THIRDPART)/imgui/imgui_tables.cpp $(THIRDPART)/imgui/imgui.cpp
-SRC_FILES += $(THIRDPART)/imgui/misc/cpp/imgui_stdlib.cpp $(THIRDPART)/imgui-sfml/imgui-SFML.cpp
+IMGUI_DIR := $(THIRD_PARTIES_DIR)/imgui
+INCLUDES += $(IMGUI_DIR) $(IMGUI_DIR)/misc/cpp $(IMGUI_DIR)/imgui-sfml
+VPATH += $(IMGUI_DIR) $(IMGUI_DIR)/imgui-sfml $(IMGUI_DIR)/misc/cpp
+SRC_FILES += $(IMGUI_DIR)/imgui_widgets.cpp $(IMGUI_DIR)/imgui_draw.cpp
+SRC_FILES += $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui.cpp
+SRC_FILES += $(IMGUI_DIR)/misc/cpp/imgui_stdlib.cpp
+
+INCLUDES += $(THIRD_PARTIES_DIR)/imgui-sfml
+SRC_FILES += $(THIRD_PARTIES_DIR)/imgui-sfml/imgui-SFML.cpp
 USER_CXXFLAGS += -Wno-old-style-cast
 
 ###################################################
@@ -83,7 +87,7 @@ else ifeq ($(OS),Linux)
 LINKER_FLAGS += -lGLEW -lGL
 PKG_LIBS += --static glfw3
 else ifneq ($(OS),Emscripten)
-$(error Unknown architecture $(ARCHI) for OpenGL)
+$(error Unknown architecture $(OS) for OpenGL)
 endif
 
 ###################################################
@@ -104,5 +108,11 @@ endif
 SRC_FILES += $(call rwildcard,$(P)/src,*.cpp)
 
 ###################################################
-# Sharable informations between all Makefiles
+# Sharable information between all Makefiles
 include $(M)/rules/Makefile
+
+###################################################
+# Post-download
+#
+download-external-libs::
+	@cp $(THIRD_PARTIES_DIR)/imgui-sfml/imconfig-SFML.h $(THIRD_PARTIES_DIR)/imgui/imconfig.h

@@ -6,7 +6,7 @@ More information on this model: https://www.januscosmologicalmodel.fr/post/janus
 
 ## Compilation Linux
 
-```
+```bash
 sudo apt-get install pkg-config ocl-icd-opencl-dev opencl-clhpp-headers libsfml-dev libglm-dev libglew-dev libglfw3-dev libdw-dev
 
 git clone https://github.com/Lecrapouille/Janus.git --recursive
@@ -17,7 +17,7 @@ make -j`nproc --all`
 ./build/Janus
 ```
 
-You need SFML v3.0, that is probably not availbale on Ubuntu (2.6). Try compile https://github.com/SFML/SFML
+Note: You need SFML v2.6 (not the v 3.0).
 
 ## Possible issue
 
@@ -33,6 +33,6 @@ Two colors: red for positive masses, green for negative masses.
 
 ![unnamed](https://github.com/user-attachments/assets/9af1cc4d-b39b-454e-96a1-71352aa53c0d)
 
-![colision_newton_30p](https://github.com/user-attachments/assets/c4f4b58a-55ba-48a6-9a9e-0a6e6693e870)
+![collision_newton_30p](https://github.com/user-attachments/assets/c4f4b58a-55ba-48a6-9a9e-0a6e6693e870)
 
 ![unnamed2](https://github.com/user-attachments/assets/1380e9d7-c0b4-480a-9399-89a4e3e06d56)
