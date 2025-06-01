@@ -15,6 +15,8 @@ cl::Buffer Computer::step_buffer;
 cl::Buffer Computer::smoothing_length_buffer;
 cl::Buffer Computer::interaction_rate_buffer;
 cl::Buffer Computer::black_hole_mass_buffer;
+size_t count_negative_mass = 0;
+size_t count_positive_mass = 0;
 
 void Computer::random_sphere(dim::Vector4& position, float& mass)
 {
@@ -51,6 +53,10 @@ void Computer::random_sphere(const float negative_mass_proportion,
     position = dim::Vector4(result, 0.0f);
     mass = (dim::random_float(0.0f, 1.0f) < negative_mass_proportion) ? -1.0f
                                                                       : 1.0f;
+    if (mass < 0.0f)
+        count_negative_mass++;
+    else
+        count_positive_mass++;
 }
 
 // galaxy centered to (0, 0) coordinates
@@ -97,7 +103,9 @@ void Computer::create_universe(int i)
 
 void Computer::init()
 {
-    ;
+    count_negative_mass = 0;
+    count_positive_mass = 0;
+
     masses.clear();
     positions.clear();
     speeds.clear();
@@ -137,6 +145,12 @@ void Computer::init()
                 break;
         }
     }
+
+    std::cout << "Nunmer of stars: " << Simulator::nb_stars << std::endl;
+    std::cout << "Number of negative mass: " << count_negative_mass
+              << std::endl;
+    std::cout << "Number of positive mass: " << count_positive_mass
+              << std::endl;
 
     masses_buffer = ComputeShader::Buffer(masses, Permissions::All);
     positions_buffer = ComputeShader::Buffer(positions, Permissions::All);
