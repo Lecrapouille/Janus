@@ -27,8 +27,6 @@ Choose between `#include <CL/opencl.hpp>` and `#include <CL/cl2.hpp>`.
 
 ## Some screenshots
 
-Made with a saggy GT710.
-
 Two colors: red for positive masses, green for negative masses.
 
 ![unnamed](https://github.com/user-attachments/assets/9af1cc4d-b39b-454e-96a1-71352aa53c0d)
@@ -36,3 +34,7 @@ Two colors: red for positive masses, green for negative masses.
 ![collision_newton_30p](https://github.com/user-attachments/assets/c4f4b58a-55ba-48a6-9a9e-0a6e6693e870)
 
 ![unnamed2](https://github.com/user-attachments/assets/1380e9d7-c0b4-480a-9399-89a4e3e06d56)
+
+## Videos
+
+https://www.youtube.com/watch?v=DqYU1c410II
